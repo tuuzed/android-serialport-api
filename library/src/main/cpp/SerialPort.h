@@ -7,21 +7,25 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-/*
- * Class:     android_serialport_api_SerialPort
- * Method:    open
- * Signature: (Ljava/lang/String;II)Ljava/io/FileDescriptor;
- */
-JNIEXPORT jobject JNICALL Java_android_1serialport_1api_SerialPort_open
-  (JNIEnv *, jclass, jstring, jint, jint);
+
 
 /*
  * Class:     android_serialport_api_SerialPort
  * Method:    close
  * Signature: ()V
  */
-JNIEXPORT void JNICALL Java_android_1serialport_1api_SerialPort_close
-  (JNIEnv *, jobject);
+JNIEXPORT void JNICALL
+Java_android_1serialport_1api_SerialPort_close(JNIEnv *env, jobject instance);
+
+/*
+ * Class:     android_serialport_api_SerialPort
+ * Method:    open
+ * Signature: (Ljava/lang/String;II)Ljava/io/FileDescriptor;
+ */
+JNIEXPORT jobject JNICALL
+Java_android_1serialport_1api_SerialPort_open(JNIEnv *env, jclass type, jstring path,
+                                              jint baudrate, jint databits, jint stopbits,
+                                              jchar parity);
 
 #ifdef __cplusplus
 }
