@@ -17,10 +17,7 @@
 package android_serialport_api.sample;
 
 import android.os.Bundle;
-import android.view.KeyEvent;
 import android.widget.EditText;
-import android.widget.TextView;
-import android.widget.TextView.OnEditorActionListener;
 
 import java.io.IOException;
 
@@ -35,26 +32,24 @@ public class ConsoleActivity extends SerialPortActivity {
 		setContentView(R.layout.console);
 
 //		setTitle("Loopback test");
-		mReception = (EditText) findViewById(R.id.EditTextReception);
+		mReception = findViewById(R.id.EditTextReception);
 
-		EditText Emission = (EditText) findViewById(R.id.EditTextEmission);
-		Emission.setOnEditorActionListener(new OnEditorActionListener() {
-			public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
-				int i;
-				CharSequence t = v.getText();
-				char[] text = new char[t.length()];
-				for (i=0; i<t.length(); i++) {
-					text[i] = t.charAt(i);
-				}
-				try {
-					mOutputStream.write(new String(text).getBytes());
-					mOutputStream.write('\n');
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
-				return false;
-			}
-		});
+		EditText Emission = findViewById(R.id.EditTextEmission);
+		Emission.setOnEditorActionListener((v, actionId, event) -> {
+            int i;
+            CharSequence t = v.getText();
+            char[] text = new char[t.length()];
+            for (i=0; i<t.length(); i++) {
+                text[i] = t.charAt(i);
+            }
+            try {
+                mOutputStream.write(new String(text).getBytes());
+                mOutputStream.write('\n');
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            return false;
+        });
 	}
 
 	@Override

@@ -88,16 +88,13 @@ static speed_t getBaudrate(jint baudrate) {
 /**
 
 * 设置串口数据，校验位,速率，停止位
-
 * @param nBits 类型 int数据位 取值 位7或8
-
-* @param nEvent 类型 char 校验类型 取值N ,E, O,,S
-
+* @param nEvent 类型 char 校验类型 取值N ,E, O,S
 * @param mStop 类型 int 停止位 取值1 或者 2
 
 */
 
-int set_opt(jint nBits, jchar nEvent, jint nStop) {
+static int set_opt(jint nBits, jchar nEvent, jint nStop) {
 
     LOGE("set_opt:nBits=%d,nEvent=%c,nSpeed=%d,nStop=%d", nBits, nEvent, nStop);
 
@@ -121,111 +118,59 @@ int set_opt(jint nBits, jchar nEvent, jint nStop) {
 
     switch (nBits) //设置数据位数
     {
-
         case 7:
-
             newtio.c_cflag &= ~CSIZE;
-
             newtio.c_cflag |= CS7;
-
             break;
-
         case 8:
-
             newtio.c_cflag &= ~CSIZE;
-
             newtio.c_cflag |= CS8;
-
             break;
-
         default:
-
-
             break;
-
     }
-
     switch (nEvent) //设置校验位
     {
-
         case 'O':
-
             newtio.c_cflag |= PARENB; //enable parity checking
-
             newtio.c_cflag |= PARODD; //奇校验位
-
             newtio.c_iflag |= (INPCK | ISTRIP);
-
-
             break;
-
         case 'E':
-
-            newtio.c_cflag |= PARENB; //
-
+            newtio.c_cflag |= PARENB;  //enable parity checking
             newtio.c_cflag &= ~PARODD; //偶校验位
-
             newtio.c_iflag |= (INPCK | ISTRIP);
-
-
             break;
-
         case 'N':
-
             newtio.c_cflag &= ~PARENB; //清除校验位
-
-
-
             break;
-
-
         default:
-
-
             break;
 
     }
     switch (nStop) //设置停止位
     {
-
         case 1:
-
             newtio.c_cflag &= ~CSTOPB;
-
             break;
-
         case 2:
-
             newtio.c_cflag |= CSTOPB;
-
             break;
-
         default:
-
             // LOGW("nStop:%d,invalid param", nStop);
-
             break;
 
     }
 
     newtio.c_cc[VTIME] = 0;//设置等待时间
-
     newtio.c_cc[VMIN] = 0;//设置最小接收字符
-
     tcflush(fd, TCIFLUSH);
-
     if (tcsetattr(fd, TCSANOW, &newtio) != 0) {
-
         LOGE("options set error");
-
         return -1;
-
     }
-
-
     LOGE("options set success");
     return 1;
-
 }
 
 

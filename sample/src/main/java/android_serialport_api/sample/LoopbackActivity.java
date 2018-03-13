@@ -65,14 +65,12 @@ public class LoopbackActivity extends SerialPortActivity {
 							// Timeout
 							mLost++;
 						}
-						runOnUiThread(new Runnable() {
-							public void run() {
-								mTextViewOutgoing.setText(mOutgoing.toString());
-								mTextViewLost.setText(mLost.toString());
-								mTextViewIncoming.setText(mIncoming.toString());
-								mTextViewCorrupted.setText(mCorrupted.toString());
-							}
-						});
+						runOnUiThread(() -> {
+                            mTextViewOutgoing.setText(mOutgoing.toString());
+                            mTextViewLost.setText(mLost.toString());
+                            mTextViewIncoming.setText(mIncoming.toString());
+                            mTextViewCorrupted.setText(mCorrupted.toString());
+                        });
 					} catch (InterruptedException e) {
 					}
 				}
@@ -84,10 +82,10 @@ public class LoopbackActivity extends SerialPortActivity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.loopback);
-		mTextViewOutgoing = (TextView) findViewById(R.id.TextViewOutgoingValue);
-		mTextViewIncoming = (TextView) findViewById(R.id.TextViewIncomingValue);
-		mTextViewLost = (TextView) findViewById(R.id.textViewLostValue);
-		mTextViewCorrupted = (TextView) findViewById(R.id.textViewCorruptedValue);
+		mTextViewOutgoing = findViewById(R.id.TextViewOutgoingValue);
+		mTextViewIncoming = findViewById(R.id.TextViewIncomingValue);
+		mTextViewLost = findViewById(R.id.textViewLostValue);
+		mTextViewCorrupted = findViewById(R.id.textViewCorruptedValue);
 		if (mSerialPort != null) {
 			mSendingThread = new SendingThread();
 			mSendingThread.start();

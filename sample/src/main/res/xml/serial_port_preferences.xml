@@ -15,4 +15,31 @@
         android:title="Baud rate">
 
     </ListPreference>
+
+    <ListPreference
+        android:entries="@array/parity_name"
+        android:entryValues="@array/parity_value"
+        android:key="PARITY"
+        android:persistent="true"
+        android:title="Parity">
+
+    </ListPreference>
+
+    <ListPreference
+        android:entries="@array/databits_name"
+        android:entryValues="@array/databits_value"
+        android:key="DATABITS"
+        android:persistent="true"
+        android:title="Data bits">
+
+    </ListPreference>
+
+    <ListPreference
+        android:entries="@array/stopbits_name"
+        android:entryValues="@array/stopbits_value"
+        android:key="STOPBITS"
+        android:persistent="true"
+        android:title="Stop bits">
+
+    </ListPreference>
 </PreferenceScreen>

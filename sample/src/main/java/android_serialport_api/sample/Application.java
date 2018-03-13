@@ -36,6 +36,9 @@ public class Application extends android.app.Application {
             SharedPreferences sp = getSharedPreferences("android_serialport_api.sample_preferences", MODE_PRIVATE);
             String path = sp.getString("DEVICE", "");
             int baudrate = Integer.decode(sp.getString("BAUDRATE", "-1"));
+            char parity = sp.getString("PARITY", "N").charAt(0);
+            int databits = Integer.decode(sp.getString("DATABITS", "-1"));
+            int stopbits = Integer.decode(sp.getString("STOPBITS", "-1"));
 
 			/* Check parameters */
             if ((path.length() == 0) || (baudrate == -1)) {
@@ -43,7 +46,7 @@ public class Application extends android.app.Application {
             }
 
 			/* Open the serial port */
-            mSerialPort = new SerialPort(new File(path), baudrate, 8, 1, 'O');
+            mSerialPort = new SerialPort(new File(path), baudrate, databits, stopbits, parity);
         }
         return mSerialPort;
     }

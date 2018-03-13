@@ -44,21 +44,43 @@ public class SerialPortPreferences extends PreferenceActivity {
         devices.setEntries(entriesAndValues);
         devices.setEntryValues(entriesAndValues);
         devices.setSummary(devices.getValue());
-        devices.setOnPreferenceChangeListener(new OnPreferenceChangeListener() {
-            public boolean onPreferenceChange(Preference preference, Object newValue) {
-                preference.setSummary((String) newValue);
-                return true;
-            }
+        devices.setOnPreferenceChangeListener((preference, newValue) -> {
+            preference.setSummary((String) newValue);
+            return true;
         });
 
         // Baud rates
         final ListPreference baudrates = (ListPreference) findPreference("BAUDRATE");
         baudrates.setSummary(baudrates.getValue());
-        baudrates.setOnPreferenceChangeListener(new OnPreferenceChangeListener() {
-            public boolean onPreferenceChange(Preference preference, Object newValue) {
-                preference.setSummary((String) newValue);
-                return true;
-            }
+        baudrates.setOnPreferenceChangeListener((preference, newValue) -> {
+            preference.setSummary((String) newValue);
+            return true;
         });
+
+        // parity
+        final ListPreference parity = (ListPreference) findPreference("PARITY");
+        parity.setSummary(parity.getValue());
+        parity.setOnPreferenceChangeListener((preference, newValue) -> {
+            preference.setSummary((String) newValue);
+            return true;
+        });
+
+        // data bits
+        final ListPreference databits = (ListPreference) findPreference("DATABITS");
+        databits.setSummary(databits.getValue());
+        databits.setOnPreferenceChangeListener((preference, newValue) -> {
+            preference.setSummary((String) newValue);
+            return true;
+        });
+
+        // stop bits
+        final ListPreference stopbits = (ListPreference) findPreference("STOPBITS");
+        stopbits.setSummary(stopbits.getValue());
+        stopbits.setOnPreferenceChangeListener((preference, newValue) -> {
+            preference.setSummary((String) newValue);
+            return true;
+        });
+
+        //
     }
 }

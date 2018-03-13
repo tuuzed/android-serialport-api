@@ -66,4 +66,33 @@
         <item>4000000</item>
     </string-array>
 
+    <string-array name="stopbits_name">
+        <item>7</item>
+        <item>8</item>
+    </string-array>
+    <string-array name="stopbits_value">
+        <item>7</item>
+        <item>8</item>
+    </string-array>
+
+    <string-array name="databits_name">
+        <item>1</item>
+        <item>2</item>
+    </string-array>
+    <string-array name="databits_value">
+        <item>1</item>
+        <item>2</item>
+    </string-array>
+
+    <string-array name="parity_name">
+        <item>O</item>
+        <item>E</item>
+        <item>N</item>
+    </string-array>
+    <string-array name="parity_value">
+        <item>O</item>
+        <item>E</item>
+        <item>N</item>
+    </string-array>
+
 </resources>
