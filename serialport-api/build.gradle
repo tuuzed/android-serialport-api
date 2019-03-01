@@ -1,21 +1,26 @@
 apply plugin: 'com.android.library'
+apply plugin: 'gitvc-gradle-plugin'
+
+
+ext.GroupId = 'com.tuuzed.android'
+ext.ArtifactId = 'serialport-api'
+ext.Version = String.valueOf(GitVC.VERSION_NAME)
+
 
 android {
-    compileSdkVersion 27
+
+    compileSdkVersion 28
 
     defaultConfig {
         minSdkVersion 3
-        targetSdkVersion 27
-        versionCode 1
-        versionName "1.1.1"
-        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+        targetSdkVersion 28
+        versionCode GitVC.VERSION_CODE
+        versionName GitVC.VERSION_NAME
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         externalNativeBuild {
             cmake {
                 cppFlags ""
             }
-        }
-        ndk {
-            abiFilters "armeabi", "armeabi-v7a", "x86"
         }
     }
 
@@ -38,8 +43,12 @@ android {
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
-    testImplementation 'junit:junit:4.12'
 
-    //androidTestImplementation 'com.android.support.test:runner:1.0.1'
-    //androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.1'
+    testImplementation 'junit:junit:4.12'
+    androidTestImplementation 'androidx.test:runner:1.1.1'
+    androidTestImplementation 'androidx.test.ext:junit:1.1.0'
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.1.1'
 }
+
+
+apply from: '../maven-deployer.gradle'

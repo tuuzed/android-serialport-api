@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <string name="app_name">Serial Port API sample</string>
+    <string name="app_name">Serial Port API Sample</string>
     <string name="about_msg">
 Serial Port API sample v1.1\n
 \n
