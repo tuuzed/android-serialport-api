@@ -2,6 +2,10 @@ package com.tuuzed.androidx.serialport;
 
 import android.util.Log;
 
+import com.tuuzed.androidx.serialport.annotation.DataBits;
+import com.tuuzed.androidx.serialport.annotation.Parity;
+import com.tuuzed.androidx.serialport.annotation.StopBits;
+
 import java.io.File;
 import java.io.FileDescriptor;
 import java.io.FileInputStream;
@@ -10,16 +14,12 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
-import com.tuuzed.androidx.serialport.annotation.DataBits;
-import com.tuuzed.androidx.serialport.annotation.Parity;
-import com.tuuzed.androidx.serialport.annotation.StopBits;
-
 public class SerialPort {
     private static final String TAG = "SerialPort";
 
     private FileDescriptor mFd;
-    private FileInputStream mFileInputStream;
-    private FileOutputStream mFileOutputStream;
+    private final FileInputStream mFileInputStream;
+    private final FileOutputStream mFileOutputStream;
 
     /***
      * 构造方法
@@ -75,6 +75,31 @@ public class SerialPort {
         return mFileOutputStream;
     }
 
+    public synchronized boolean isOpen() {
+        return mFd != null;
+    }
+
+    public synchronized void shutdown() {
+        if (mFileInputStream != null) {
+            try {
+                mFileInputStream.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        if (mFileOutputStream != null) {
+            try {
+                mFileOutputStream.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        try {
+            close();
+        } finally {
+            mFd = null;
+        }
+    }
 
     // 调用JNI中 打开方法的声明
     private native static FileDescriptor open(
@@ -85,7 +110,7 @@ public class SerialPort {
             int parity
     );
 
-    public native void close();
+    private native void close();
 
     static {
         System.loadLibrary("serial_port");
