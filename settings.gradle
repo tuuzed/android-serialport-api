@@ -1,2 +1,2 @@
-include ':serialport-api-sample',
-        ':serialport-api'
+include ':sample',
+        ':serialport'
