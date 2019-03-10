@@ -1,76 +1,72 @@
 package com.tuuzed.androidx.serialport;
 
-import android.os.Build;
 import android.os.Handler;
 import android.os.HandlerThread;
+import android.os.Message;
 import android.util.Log;
 
 import com.tuuzed.androidx.serialport.annotation.DataBits;
 import com.tuuzed.androidx.serialport.annotation.Parity;
+import com.tuuzed.androidx.serialport.annotation.ReadOrWriteException;
 import com.tuuzed.androidx.serialport.annotation.StopBits;
 import com.tuuzed.androidx.serialport.internal.ByteBuf;
+import com.tuuzed.androidx.serialport.internal.HandlerThreadCompat;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 public class AsyncSerialPort implements SerialPort {
     private static final String TAG = "AsyncSerialPort";
+
+    private static final int MSG_WHAT_WRITE = 0x1000;
+    private static final int MSG_WHAT_WRITE_AND_FLUSH = 0x1001;
+
+    private final NativeSerialPort mSerialPort;
     private final HandlerThread mWriteThread = new HandlerThread("AsyncSerialPort-WriteThread");
     private final Thread mReadThread;
-    private final NativeSerialPort mSerialPort;
     private final Handler mWriteHandler;
     private final ByteBuf mByteBuf;
-    @Nullable
-    private Listener mListener;
     private final InputStream mAsyncInputStream;
     private final OutputStream mAsyncOutputStream;
+    private final AtomicBoolean mIsShutdown = new AtomicBoolean(false);
+    @Nullable
+    private Listener mListener;
 
-    public AsyncSerialPort(File device, int baudRate, @DataBits int dataBit, @StopBits int stopBit,
+    public AsyncSerialPort(@NonNull File device, int baudRate, @DataBits int dataBit, @StopBits int stopBit,
                            @Parity int parity) throws IOException, SecurityException {
         this(device, baudRate, dataBit, stopBit, parity, -1);
     }
 
 
-    public AsyncSerialPort(File device, int baudRate, @DataBits int dataBit, @StopBits int stopBit,
+    public AsyncSerialPort(@NonNull File device, int baudRate, @DataBits int dataBit, @StopBits int stopBit,
                            @Parity int parity, int bufferCapacity) throws IOException, SecurityException {
         mSerialPort = new NativeSerialPort(device, baudRate, dataBit, stopBit, parity);
         mByteBuf = new ByteBuf(bufferCapacity);
         mWriteThread.start();
-        mWriteHandler = new Handler(mWriteThread.getLooper());
+        mWriteHandler = new Handler(mWriteThread.getLooper()) {
+            @Override
+            public void handleMessage(Message msg) {
+                super.handleMessage(msg);
+                handleWriteBytesMessage(msg);
+            }
+        };
         mAsyncInputStream = new AsyncInputStream();
         mAsyncOutputStream = new AsyncOutputStream();
         mReadThread = new Thread("AsyncSerialPort-ReadThread") {
             @Override
             public void run() {
-                final InputStream in = mSerialPort.getInputStream();
-                final byte[] buf = new byte[64];
-                while (!mReadThread.isInterrupted()) {
-                    try {
-                        int len = in.read(buf);
-                        final Listener listener = mListener;
-                        if (listener != null) {
-                            listener.onRead(AsyncSerialPort.this, buf, len);
-                        }
-                        mByteBuf.writeBytes(buf, len);
-                    } catch (IOException e) {
-                        Log.e(TAG, "run: read exception", e);
-                        final Listener listener = mListener;
-                        if (listener != null) {
-                            listener.onReadException(AsyncSerialPort.this, e);
-                        }
-                    }
-                }
+                loopReadBytes();
             }
         };
-        mReadThread.setName("");
         mReadThread.start();
-
     }
+
 
     @NonNull
     public AsyncSerialPort setListener(Listener listener) {
@@ -86,68 +82,107 @@ public class AsyncSerialPort implements SerialPort {
         return mAsyncOutputStream;
     }
 
-    public void writeBytes(@NonNull final byte[] data, final boolean flush) {
-        mWriteHandler.post(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    OutputStream out = mSerialPort.getOutputStream();
-                    out.write(data);
-                    if (flush) {
-                        out.flush();
-                    }
-                    final Listener listener = mListener;
-                    if (listener != null) {
-                        listener.onWrite(AsyncSerialPort.this, data);
-                    }
-                } catch (IOException e) {
-                    Log.e(TAG, "run: write exception", e);
-                    final Listener listener = mListener;
-                    if (listener != null) {
-                        listener.onWriteException(AsyncSerialPort.this, data, e);
-                    }
-                }
-            }
-        });
+    public void writeBytes(@NonNull final byte[] data, final boolean flush) throws IOException {
+        if (mIsShutdown.get()) {
+            throw new IOException("Already shutdown!");
+        }
+        final Message message = new Message();
+        if (flush) {
+            message.what = MSG_WHAT_WRITE;
+        } else {
+            message.what = MSG_WHAT_WRITE_AND_FLUSH;
+        }
+        message.obj = data;
+        mWriteHandler.sendMessage(message);
     }
 
-    public int readBytes(@NonNull byte[] dst) {
+    public int readBytes(@NonNull byte[] dst) throws IOException {
+        if (mIsShutdown.get()) {
+            throw new IOException("Already shutdown!");
+        }
         return mByteBuf.readBytes(dst);
     }
 
-    public synchronized boolean isOpen() {
+    public boolean isOpen() {
         return mSerialPort.isOpen() && !mReadThread.isInterrupted();
     }
 
     public void shutdown() {
-        mReadThread.interrupt();
+        mIsShutdown.set(true);
+        HandlerThreadCompat.safeQuit(mWriteThread);
         mSerialPort.shutdown();
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {
-            mWriteThread.quitSafely();
-        } else {
-            mWriteThread.quit();
+    }
+
+    private void loopReadBytes() {
+        final InputStream in = mSerialPort.getInputStream();
+        final byte[] buf = new byte[64];
+        while (!mIsShutdown.get()) {
+            try {
+                int len = in.read(buf);
+                if (len > 0) {
+                    final Listener listener = mListener;
+                    if (listener != null) {
+                        listener.onRead(AsyncSerialPort.this, buf, len);
+                    }
+                    mByteBuf.writeBytes(buf, len);
+                }
+            } catch (IOException e) {
+                Log.e(TAG, "run: read exception", e);
+                final Listener listener = mListener;
+                if (listener != null) {
+                    listener.onException(AsyncSerialPort.this, ReadOrWriteException.READ, e);
+                }
+            }
         }
     }
 
+    private void handleWriteBytesMessage(Message msg) {
+        if (msg == null) {
+            return;
+        }
+        byte[] data;
+        boolean flush;
+        switch (msg.what) {
+            case MSG_WHAT_WRITE:
+                data = (byte[]) msg.obj;
+                flush = false;
+                break;
+            case MSG_WHAT_WRITE_AND_FLUSH:
+                data = (byte[]) msg.obj;
+                flush = true;
+                break;
+            default:
+                return;
+        }
+        try {
+            OutputStream out = mSerialPort.getOutputStream();
+            out.write(data);
+            if (flush) {
+                out.flush();
+            }
+            final Listener listener = mListener;
+            if (listener != null) {
+                listener.onWrite(AsyncSerialPort.this, data);
+            }
+        } catch (IOException e) {
+            Log.e(TAG, "run: write exception", e);
+            final Listener listener = mListener;
+            if (listener != null) {
+                listener.onException(AsyncSerialPort.this, ReadOrWriteException.WRITE, e);
+            }
+        }
+    }
 
     public abstract class Listener {
         void onRead(@NonNull AsyncSerialPort serialPort, @NonNull byte[] data, int len) {
-
         }
 
         void onWrite(@NonNull AsyncSerialPort serialPort, @NonNull byte[] data) {
-
         }
 
-        void onReadException(@NonNull AsyncSerialPort serialPort, @NonNull Throwable tr) {
-
-        }
-
-        void onWriteException(@NonNull AsyncSerialPort serialPort, @NonNull byte[] originalData, @NonNull Throwable tr) {
-
+        void onException(@NonNull AsyncSerialPort serialPort, @ReadOrWriteException int readOrWrite, @NonNull Throwable cause) {
         }
     }
-
 
     private final class AsyncInputStream extends InputStream {
         private final byte[] read = new byte[1];
@@ -190,7 +225,6 @@ public class AsyncSerialPort implements SerialPort {
         public int available() throws IOException {
             return mByteBuf.size();
         }
-
     }
 
     private final class AsyncOutputStream extends OutputStream {

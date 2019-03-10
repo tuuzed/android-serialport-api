@@ -14,6 +14,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
+import androidx.annotation.NonNull;
+
 public class NativeSerialPort implements SerialPort {
     private static final String TAG = "NativeSerialPort";
 
@@ -21,7 +23,7 @@ public class NativeSerialPort implements SerialPort {
     private final FileInputStream mFileInputStream;
     private final FileOutputStream mFileOutputStream;
 
-    public NativeSerialPort(File device, int baudRate, @DataBits int dataBit,
+    public NativeSerialPort(@NonNull File device, int baudRate, @DataBits int dataBit,
                             @StopBits int stopBit, @Parity int parity
     ) throws IOException, SecurityException {
         /* Check access permission */
@@ -38,11 +40,10 @@ public class NativeSerialPort implements SerialPort {
                     throw new SecurityException();
                 }
             } catch (Exception e) {
-                e.printStackTrace();
+                Log.e(TAG, "NativeSerialPort: ", e);
                 throw new SecurityException();
             }
         }
-
         mFd = nativeOpen(device.getAbsolutePath(), baudRate, dataBit, stopBit, parity);
         if (mFd == null) {
             Log.e(TAG, "native open returns null");
