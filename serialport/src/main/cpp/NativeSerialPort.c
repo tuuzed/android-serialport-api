@@ -7,7 +7,7 @@
 #include <jni.h>
 #include <strings.h>
 
-#include "SerialPort.h"
+#include "NativeSerialPort.h"
 
 #include "android/log.h"
 
@@ -94,13 +94,14 @@ static speed_t getBaudRate(jint baudRate) {
             return -1;
     }
 }
+
 /*
- * Class:     com_tuuzed_androidx_serialport_SerialPort
- * Method:    open
+ * Class:     com_tuuzed_androidx_serialport_NativeSerialPort
+ * Method:    nativeOpen
  * Signature: (Ljava/lang/String;II)Ljava/io/FileDescriptor;
  */
 JNIEXPORT jobject JNICALL
-Java_com_tuuzed_androidx_serialport_SerialPort_open(
+Java_com_tuuzed_androidx_serialport_NativeSerialPort_nativeOpen(
         JNIEnv *env, jclass type, jstring path,
         jint baudRate, jint dataBit, jint stopBit,
         jint parity
@@ -215,12 +216,12 @@ Java_com_tuuzed_androidx_serialport_SerialPort_open(
 }
 
 /*
- * Class:     com_tuuzed_androidx_serialport
- * Method:    close
+ * Class:     com_tuuzed_androidx_serialport_NativeSerialPort
+ * Method:    nativeClose
  * Signature: ()V
  */
 JNIEXPORT void JNICALL
-Java_com_tuuzed_androidx_serialport_SerialPort_close(
+Java_com_tuuzed_androidx_serialport_NativeSerialPort_nativeClose(
         JNIEnv *env, jobject instance
 ) {
     jclass SerialPortClass = (*env)->GetObjectClass(env, instance);

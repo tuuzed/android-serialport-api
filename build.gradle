@@ -3,6 +3,8 @@
 buildscript {
 
     repositories {
+        maven { url 'https://maven.aliyun.com/repository/public' }
+        maven { url 'https://maven.aliyun.com/repository/google' }
         google()
         jcenter()
     }
@@ -16,13 +18,15 @@ buildscript {
 
 allprojects {
     repositories {
+        maven { url 'https://maven.aliyun.com/repository/public' }
+        maven { url 'https://maven.aliyun.com/repository/google' }
         google()
         jcenter()
     }
 }
 
 group 'com.tuuzed.androidx'
-version '1.0.0-rc2'
+version '1.0.0-rc3'
 
 task clean(type: Delete) {
     delete rootProject.buildDir

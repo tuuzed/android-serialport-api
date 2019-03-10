@@ -22,6 +22,7 @@ import java.io.File;
 import java.io.IOException;
 import java.security.InvalidParameterException;
 
+import com.tuuzed.androidx.serialport.NativeSerialPort;
 import com.tuuzed.androidx.serialport.SerialPort;
 import com.tuuzed.androidx.serialport.SerialPortFinder;
 
@@ -49,14 +50,14 @@ public class Application extends android.app.Application {
             }
 
             /* Open the serial port */
-            mSerialPort = new SerialPort(new File(path), baudrate, databits, stopbits, parity);
+            mSerialPort = new NativeSerialPort(new File(path), baudrate, databits, stopbits, parity);
         }
         return mSerialPort;
     }
 
     public void closeSerialPort() {
         if (mSerialPort != null) {
-            mSerialPort.close();
+            mSerialPort.shutdown();
             mSerialPort = null;
         }
     }
