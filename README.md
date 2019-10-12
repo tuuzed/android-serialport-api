@@ -1,8 +1,11 @@
 # android-serialport-api
-From http://code.google.com/p/android-serialport-api
+
+Android串口通信库，支持设置 su 路径、串口路径、波特率、校验位、数据位、停止位。
+
+Forked from http://code.google.com/p/android-serialport-api 
 
 
-[ ![Download](https://api.bintray.com/packages/tuuzed/maven/serialport/images/download.svg) ](https://bintray.com/tuuzed/maven/serialport/_latestVersion)
+[ ![Download](https://api.bintray.com/packages/tuuzed/maven/com.tuuzed%3Aserialport/images/download.svg) ](https://bintray.com/tuuzed/maven/com.tuuzed%3Aserialport/_latestVersion)
 
 ### 添加依赖
 
@@ -12,7 +15,7 @@ repositories {
 }
 
 dependencies {
-    implementation 'com.tuuzed.androidx:serialport:latest.release'
+    implementation 'com.tuuzed:serialport:latest.release'
 }
 ```
 

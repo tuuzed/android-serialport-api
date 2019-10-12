@@ -1,25 +1,25 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.tuuzed.androidx.serialport.sample">
+    package="android_serialport_api.sample">
 
     <application
         android:icon="@drawable/icon"
         android:label="@string/app_name"
-        android:name="com.tuuzed.androidx.serialport.sample.Application" >
-        <activity android:name="com.tuuzed.androidx.serialport.sample.MainMenu">
+        android:name="android_serialport_api.sample.Application" >
+        <activity android:name="android_serialport_api.sample.MainMenu">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name="com.tuuzed.androidx.serialport.sample.SerialPortPreferences" >
+        <activity android:name="android_serialport_api.sample.SerialPortPreferences" >
         </activity>
-        <activity android:name="com.tuuzed.androidx.serialport.sample.ConsoleActivity" >
+        <activity android:name="android_serialport_api.sample.ConsoleActivity" >
         </activity>
-        <activity android:name="com.tuuzed.androidx.serialport.sample.LoopbackActivity" >
+        <activity android:name="android_serialport_api.sample.LoopbackActivity" >
         </activity>
-        <activity android:name="com.tuuzed.androidx.serialport.sample.Sending01010101Activity">
+        <activity android:name="android_serialport_api.sample.Sending01010101Activity">
         </activity>
     </application>
 

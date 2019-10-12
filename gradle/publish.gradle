@@ -1,0 +1,78 @@
+apply plugin: 'com.jfrog.bintray'
+apply plugin: 'com.github.dcendents.android-maven'
+
+def group = project.group ?: rootProject.group
+def version = project.version ?: rootProject.version
+
+def siteUrl = "https://github.com/tuuzed/android-serialport-api"
+
+bintray {
+    user = System.getenv('BINTRAY_USER')
+    key = System.getenv('BINTRAY_API_KEY')
+
+    configurations = ['archives'] //When uploading configuration files
+    pkg {
+        repo = 'maven'
+        name = "$group:${project.name}"
+        desc = 'Android SerialPort Api'
+        websiteUrl = siteUrl
+        issueTrackerUrl = "$siteUrl/issues"
+        vcsUrl = "${siteUrl}.git"
+        licenses = ['Apache-2.0']
+        labels = ['aar', 'android', 'serialport']
+        publicDownloadNumbers = true
+        dryRun = false
+        override = true
+    }
+}
+
+install {
+    repositories.mavenInstaller {
+        pom {
+            project {
+                packaging 'aar'
+                name 'Android SerialPort Api'
+                url siteUrl
+                licenses {
+                    license {
+                        name 'The Apache Software License, Version 2.0'
+                        url 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+                    }
+                }
+                developers {
+                    developer {
+                        id 'TuuZed'
+                        name 'TuuZed'
+                        email 'liuyonghui.job@gmail.com'
+                    }
+                }
+                scm {
+                    connection "${siteUrl}.git"
+                    developerConnection "${siteUrl}.git"
+                    url siteUrl
+                }
+            }
+        }
+    }
+}
+
+task sourcesJar(type: Jar) {
+    from android.sourceSets.main.java.srcDirs
+    classifier = 'sources'
+}
+
+//task javadoc(type: Javadoc) {
+//    options.encoding = "UTF-8"
+//    source = android.sourceSets.main.java.srcDirs
+//    classpath += project.files(android.getBootClasspath().join(File.pathSeparator))
+//}
+//
+//task javadocJar(type: Jar, dependsOn: javadoc) {
+//    classifier = 'javadoc'
+//    from javadoc.destinationDir
+//}
+
+artifacts {
+    // archives javadocJar
+    archives sourcesJar
+}
