@@ -11,6 +11,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 
 
 public class SerialPort {
@@ -20,6 +22,7 @@ public class SerialPort {
 
     // 校验位
     @IntDef(value = {Parity.NONE, Parity.ODD, Parity.EVEN})
+    @Retention(RetentionPolicy.SOURCE)
     public @interface Parity {
         int NONE = 0;
         int ODD = 1;
@@ -28,6 +31,7 @@ public class SerialPort {
 
     // 数据位
     @IntDef(value = {DataBit.B5, DataBit.B6, DataBit.B7, DataBit.B8})
+    @Retention(RetentionPolicy.SOURCE)
     public @interface DataBit {
         int B5 = 5;
         int B6 = 6;
@@ -37,6 +41,7 @@ public class SerialPort {
 
     // 停止位
     @IntDef(value = {StopBit.B1, StopBit.B2})
+    @Retention(RetentionPolicy.SOURCE)
     public @interface StopBit {
         int B1 = 1;
         int B2 = 2;
