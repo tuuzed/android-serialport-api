@@ -2,6 +2,8 @@ package android_serialport_api;
 
 import android.util.Log;
 
+import androidx.annotation.IntDef;
+
 import java.io.File;
 import java.io.FileDescriptor;
 import java.io.FileInputStream;
@@ -17,17 +19,28 @@ public class SerialPort {
     private static String sSuPath = DEFAULT_SU_PATH;
 
     // 校验位
-    public static final int PARITY_NONE = 0;
-    public static final int PARITY_ODD = 1;
-    public static final int PARITY_EVEN = 2;
+    @IntDef(value = {Parity.NONE, Parity.ODD, Parity.EVEN})
+    public @interface Parity {
+        int NONE = 0;
+        int ODD = 1;
+        int EVEN = 2;
+    }
+
     // 数据位
-    public static final int DATABIT_5 = 5;
-    public static final int DATABIT_6 = 6;
-    public static final int DATABIT_7 = 7;
-    public static final int DATABIT_8 = 8;
+    @IntDef(value = {DataBit.B5, DataBit.B6, DataBit.B7, DataBit.B8})
+    public @interface DataBit {
+        int B5 = 5;
+        int B6 = 6;
+        int B7 = 7;
+        int B8 = 8;
+    }
+
     // 停止位
-    public static final int STOPBIT_1 = 1;
-    public static final int STOPBIT_2 = 2;
+    @IntDef(value = {StopBit.B1, StopBit.B2})
+    public @interface StopBit {
+        int B1 = 1;
+        int B2 = 2;
+    }
 
     /**
      * Set the su binary path, the default su binary path is {@link #DEFAULT_SU_PATH}
@@ -53,15 +66,15 @@ public class SerialPort {
     private FileInputStream mFileInputStream;
     private FileOutputStream mFileOutputStream;
 
-    public SerialPort(File device, int baudRate) throws SecurityException, IOException {
+    public SerialPort(File device, int baudRate) throws IOException {
         this(device, baudRate, 0);
     }
 
-    public SerialPort(File file, int baudRate, int flags) throws SecurityException, IOException {
-        this(file, baudRate, PARITY_NONE, DATABIT_8, STOPBIT_1, flags);
+    public SerialPort(File file, int baudRate, int flags) throws IOException {
+        this(file, baudRate, Parity.NONE, DataBit.B8, StopBit.B1, flags);
     }
 
-    public SerialPort(File file, int baudRate, int parity, int dataBits, int stopBit) throws SecurityException, IOException {
+    public SerialPort(File file, int baudRate, @Parity int parity, @DataBit int dataBits, @StopBit int stopBit) throws IOException {
         this(file, baudRate, parity, dataBits, stopBit, 0);
     }
 
@@ -71,13 +84,12 @@ public class SerialPort {
      * @param device   串口设备文件
      * @param baudRate 波特率
      * @param parity   奇偶校验，0 None（默认）； 1 Odd； 2 Even
-     * @param dataBits 数据位，5 ~ 8  （默认8）
-     * @param stopBit  停止位，1 或 2  （默认 1）
+     * @param dataBits 数据位，5 ~ 8 （默认 8）
+     * @param stopBit  停止位，1 或 2 默认 1）
      * @param flags    标记 0（默认）
-     * @throws SecurityException
-     * @throws IOException
+     * @throws IOException 串口打开失败时抛出
      */
-    public SerialPort(File device, int baudRate, int parity, int dataBits, int stopBit, int flags) throws SecurityException, IOException {
+    public SerialPort(File device, int baudRate, @Parity int parity, @DataBit int dataBits, @StopBit int stopBit, int flags) throws IOException {
         /* Check access permission */
         if (!device.canRead() || !device.canWrite()) {
             Log.d(TAG, "Missing read/write permission, trying to chmod the file");
@@ -88,18 +100,17 @@ public class SerialPort {
                 String cmd = "chmod 666 " + device.getAbsolutePath() + "\n" + "exit\n";
                 su.getOutputStream().write(cmd.getBytes());
                 if ((su.waitFor() != 0) || !device.canRead() || !device.canWrite()) {
-                    throw new SecurityException();
+                    throw new IOException("open serial port failure");
                 }
             } catch (Exception e) {
-                e.printStackTrace();
-                throw new SecurityException();
+                throw new IOException("open serial port failure", e);
             }
         }
 
         mFd = open(device.getAbsolutePath(), baudRate, parity, dataBits, stopBit, flags);
         if (mFd == null) {
             Log.e(TAG, "native open returns null");
-            throw new IOException();
+            throw new IOException("open serial port failure");
         }
         mFileInputStream = new FileInputStream(mFd);
         mFileOutputStream = new FileOutputStream(mFd);
