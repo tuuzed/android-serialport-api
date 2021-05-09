@@ -4,18 +4,17 @@ Android串口通信库，支持设置 su 路径、串口路径、波特率、校
 
 Forked from http://code.google.com/p/android-serialport-api 
 
-
-[ ![Download](https://api.bintray.com/packages/tuuzed/maven/com.tuuzed%3Aserialport/images/download.svg) ](https://bintray.com/tuuzed/maven/com.tuuzed%3Aserialport/_latestVersion)
+[![](https://jitpack.io/v/tuuzed/android-serialport-api.svg)](https://jitpack.io/#tuuzed/android-serialport-api)
 
 ### 添加依赖
 
 ```groovy
 repositories {
-    maven { url 'https://dl.bintray.com/tuuzed/maven' }
+    maven { url 'https://jitpack.io' }
 }
 
 dependencies {
-    implementation 'com.tuuzed:serialport:latest.release'
+    implementation 'com.github.tuuzed:android-serialport-api:latest.release'
 }
 ```
 

@@ -1,2 +1,3 @@
 rootProject.name = "android-serialport-api"
-include ':sample', ':serialport'
+include ':sample',
+        ':library'
