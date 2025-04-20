@@ -17,8 +17,7 @@ import java.lang.annotation.RetentionPolicy;
 
 public class SerialPort {
     private static final String TAG = "SerialPort";
-    private static final String DEFAULT_SU_PATH = "/system/bin/su";
-    private static String sSuPath = DEFAULT_SU_PATH;
+    private static String suPath = null;
 
     // 校验位
     @IntDef(value = {Parity.NONE, Parity.ODD, Parity.EVEN})
@@ -53,14 +52,11 @@ public class SerialPort {
      * @param suPath su binary path
      */
     public static void setSuPath(String suPath) {
-        if (suPath == null) {
-            return;
-        }
-        sSuPath = suPath;
+        SerialPort.suPath = suPath;
     }
 
     public static String getSuPath() {
-        return sSuPath;
+        return suPath;
     }
 
     /**
@@ -100,11 +96,15 @@ public class SerialPort {
             Log.d(TAG, "Missing read/write permission, trying to chmod the file");
             try {
                 /* Missing read/write permission, trying to chmod the file */
-                Process su;
-                su = Runtime.getRuntime().exec(sSuPath);
                 String cmd = "chmod 666 " + device.getAbsolutePath() + "\n" + "exit\n";
-                su.getOutputStream().write(cmd.getBytes());
-                if ((su.waitFor() != 0) || !device.canRead() || !device.canWrite()) {
+                Process ps;
+                if (suPath == null) {
+                    ps = Runtime.getRuntime().exec(cmd);
+                } else {
+                    ps = Runtime.getRuntime().exec(suPath);
+                    ps.getOutputStream().write(cmd.getBytes());
+                }
+                if ((ps.waitFor() != 0) || !device.canRead() || !device.canWrite()) {
                     throw new IOException("open serial port failure");
                 }
             } catch (Exception e) {
